@@ -1,0 +1,1 @@
+# admin.hasko.cz
