@@ -4,8 +4,9 @@
   "main": "/src/server.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "ts-node src/server.ts",
-    "build": "npx tsc"
+    "dev": "ts-node server.ts",
+    "build": "npx tsc",
+    "push": "git add --all && git commit -a -m 'auto push' && git push"
   },
   "keywords": [],
   "author": "",
