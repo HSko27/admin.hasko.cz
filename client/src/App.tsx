@@ -1,16 +1,21 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Login from "./Login";
-import Dashboard from "./Dashboard";
 
 function App() {
-    return (
-        <Router>
-            <Routes>
-                <Route path="/" element={<Login />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-            </Routes>
-        </Router>
-    );
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/dashboard");
+    }
+  }, [navigate]);
+  return (
+    <div>
+      <Login />
+    </div>
+  );
 }
 
 export default App;

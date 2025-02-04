@@ -38,6 +38,8 @@ a {
 .consult-btn:hover {
   background-color: #690000;
 }
-iframe{
-    margin-top: 10vh;
+.main-text {
+  font-family: "Bebas Neue", serif;
+  font-style: bold;
+  color: #ffffff;
 }

@@ -21,9 +21,36 @@ const dotenv_1 = __importDefault(require("dotenv"));
 dotenv_1.default.config();
 const prisma = new client_1.PrismaClient();
 const app = (0, express_1.default)();
-app.use((0, cors_1.default)());
+app.use((0, cors_1.default)({
+    origin: "*",
+}));
 app.use(express_1.default.json());
 const JWT_SECRET = process.env.JWT_SECRET;
+app.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    return res.status(200).json({ message: "HELLO" });
+}));
+app.get("/db", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const users = yield prisma.message.findMany();
+    return res.status(200).json(users);
+}));
+app.delete("/db/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const user = yield prisma.message.delete({
+        where: { id: parseInt(id) },
+    });
+    return res.status(200).json({ user: user });
+}));
+app.get("/admin", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const admin = yield prisma.users.findMany();
+    return res.status(200).json(admin);
+}));
+app.delete("/admin/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const admin = yield prisma.users.delete({
+        where: { id: parseInt(id) },
+    });
+    return res.status(200).json({ user: admin });
+}));
 app.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { names, pass } = req.body;
@@ -35,23 +62,46 @@ app.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             where: { names },
         });
         if (!user) {
-            console.log("❌ Uživatel nenalezen");
+            console.log("Uživatel nenalezen");
             return res.status(401).json({ message: "Špatné přihlašovací údaje" });
         }
-        console.log("✅ Nalezený uživatel:", user);
+        console.log("Nalezený uživatel:", user);
         const hashedPass = user.pass;
         const validPass = yield bcryptjs_1.default.compare(pass, hashedPass);
-        console.log("🔑 Heslo platné?", validPass);
+        console.log("Heslo platné?", validPass);
         if (!validPass) {
             return res.status(401).json({ message: "Špatné přihlašovací údaje" });
         }
         const token = jsonwebtoken_1.default.sign({ id: user.id, names: user.names }, JWT_SECRET, { expiresIn: "1h" });
-        console.log("🔐 Token vygenerován:", token);
+        console.log("Token vygenerován:", token);
         res.json({ token });
     }
     catch (error) {
-        console.error("🚨 Chyba serveru:", error);
+        console.error("Chyba serveru:", error);
         res.status(500).json({ message: "Chyba serveru" });
     }
 }));
-app.listen(3002, () => console.log("🚀 Server běží na http://localhost:3002"));
+app.post("/createMess", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { email, firstName, lastName, message } = req.body;
+        if (!email || !firstName || !lastName || !message) {
+            return res.status(400).json({ error: "Všechna pole jsou povinná!" });
+        }
+        const existingMessage = yield prisma.message.findUnique({
+            where: { email },
+        });
+        if (existingMessage) {
+            return res.status(409).json({ error: "E-mail už existuje v databázi!" });
+        }
+        const newMessage = yield prisma.message.create({
+            data: { email, firstName, lastName, message },
+        });
+        console.log("Data uložená do databáze:", newMessage);
+        res.json({ message: "Data byla uložena!", data: newMessage });
+    }
+    catch (error) {
+        console.error("Chyba při ukládání do databáze:", error);
+        res.status(500).json({ error: "Interní chyba serveru" });
+    }
+}));
+app.listen(3002, () => console.log("Server běží na http://5.39.202.91:3002"));

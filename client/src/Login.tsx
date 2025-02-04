@@ -1,27 +1,31 @@
-import { useState } from "react";
-import axios from "axios";
+import React, { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [names, setNames] = useState("");
   const [pass, setPass] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     try {
-        console.log("Odesílám:", { names, pass });
-        const response = await axios.post("http://localhost:3002/login", { names, pass });
-        console.log("Odpověď serveru:", response.data);
+      console.log("Odesílám:", { names, pass });
+      const response = await axios.post("http://5.39.202.91:3002/login", { names, pass });
+      console.log("Odpověď serveru:", response.data);
 
-        localStorage.setItem("token", response.data.token);
-        alert("Přihlášení úspěšné!");
-        window.location.href = "/dashboard";
+      localStorage.setItem("token", response.data.token);
+      alert("Přihlášení úspěšné!");
+      navigate("/dashboard");
     } catch (err) {
-        console.error("Chyba při přihlášení:",)
+      console.error("Chyba při přihlášení:", err);
+      setError("Přihlášení se nezdařilo. Zkontrolujte své údaje a zkuste to znovu.");
     }
-};
+  };
+
   return (
     <div className="screen">
       <div className="justify-center flex">
@@ -40,9 +44,9 @@ const Login = () => {
             placeholder="Heslo"
             value={pass}
             onChange={(e) => setPass(e.target.value)}
-            className="w-1/2  text-slate-50 mx-auto p-2 border rounded mb-3"
+            className="w-1/2 text-slate-50 mx-auto p-2 border rounded mb-3"
           />
-          <button className="w-1/2 text-slate-50 mx-auto bg-blue-500 text-white py-2 rounded">Přihlásit</button>
+          <button type="submit" className="bg-blue-500 text-white p-2 rounded">Přihlásit se</button>
         </form>
       </div>
     </div>
